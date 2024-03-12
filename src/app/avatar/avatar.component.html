@@ -1,0 +1,44 @@
+<!-- A-SCENE -->
+<a-scene
+  id="aframescene"
+  background="color:#6EBAA7"
+  cursor="rayOrigin: mouse; fuseTimeout: 0;"
+  cursor__xrselect="rayOrigin: xrselect"
+  raycaster="objects: .raycastable"
+  xr-mode-ui="enabled: true"
+  renderer="colorManagement: true"
+  toneMapping="linear"
+  light="defaultLightsEnabled: false"
+  gltf-model="dracoDecoderPath: https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/;">
+
+  <a-gltf-model
+    id="playerID"
+    name="playerName"
+    src="/assets/male/player_viseme.gltf"
+    position="0 0 -2"
+    rotation="0 0 0"
+    scale="1 1 1"
+    animation-mixer="clip: Idle; loop: repeat; crossFadeDuration: 0.4"
+    sound="src:assets/male/welcome.wav;"
+    my-hook
+  ></a-gltf-model>
+
+
+</a-scene>
+
+
+
+
+<div id="overlay">
+  <div class="overlay-content">
+    <button type="button" class="btn btn-primary" (click)="playMyEvent($event)">TEST VOCE</button>
+  </div>
+  <div class="overlay-content">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="smooth"  [(ngModel)]="isSmoothMorphTarget">
+      <label class="form-check-label" for="smooth">
+        Smooth Morph Target
+      </label>
+    </div>
+  </div>
+</div>
