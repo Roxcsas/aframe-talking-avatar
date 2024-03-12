@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, NgZone, OnInit} from '@angular/core';
 import * as THREE from 'super-three';
 
 @Component({
@@ -16,14 +16,14 @@ export class AvatarComponent implements OnInit{
   // Create a FileLoader instance
   loader: THREE.FileLoader = new THREE.FileLoader();
 
-  audio = new Audio(`assets/male/welcome.ogg`);
-
   lipsync: any;
 
   meshNodeHead: any;
   meshNodeTeeth: any;
 
   isSmoothMorphTarget: boolean = false;
+
+  soundComponent: any;
 
   audioJSON: string = 'assets/male/welcome.json'
 
@@ -39,7 +39,7 @@ export class AvatarComponent implements OnInit{
     X: "viseme_PP",
   }
 
-  constructor() {
+  constructor(private ngZone: NgZone) {
   }
 
   ngOnInit(): void {
@@ -55,13 +55,19 @@ export class AvatarComponent implements OnInit{
       this.aframe.registerComponent('my-hook', {
         schema: {},
 
-        update: function () {
+        init: function () {
+          const el = this.el;
+          el.addEventListener('sound-ended', (event) => {
+            myComponent.ngZone.run(() => {
+              myComponent.soundComponent = undefined;
+            });
 
+          });
         },
         tick: function (time, deltaTime) {
-          if (myComponent.audio.currentTime === 0) return;
+        if (!myComponent.soundComponent) return;
 
-          const currentAudioTime = myComponent.audio.currentTime;
+          const currentAudioTime = myComponent.soundComponent.pool.children[0].source.context.currentTime - myComponent.soundComponent.pool.children[0]._startedAt;
 
           Object.entries(myComponent.corresponding).forEach(([key, value]) => {
             if (myComponent.isSmoothMorphTarget) {
@@ -92,6 +98,7 @@ export class AvatarComponent implements OnInit{
 
       })
     }
+
   }
 
   playMyEvent(event: any) {
@@ -104,10 +111,10 @@ export class AvatarComponent implements OnInit{
 
       //player mesh
       const player: THREE = document.querySelector('#playerID');
-      //sound
-      const soundComponent = player.components.sound;
-
       let playerMesh = player.getObject3D("mesh");
+
+      //sound
+      this.soundComponent = player.components.sound;
 
       const meshNameHead = 'Wolf3D_Head'
       const meshNameTeeth = 'Wolf3D_Teeth'
@@ -115,7 +122,7 @@ export class AvatarComponent implements OnInit{
       this.meshNodeHead = playerMesh.getObjectByName(meshNameHead);
       this.meshNodeTeeth = playerMesh.getObjectByName(meshNameTeeth);
 
-      this.audio.play();
+      this.soundComponent.playSound();
 
       // meshNodeHead.morphTargetInfluences[meshNodeHead.morphTargetDictionary["viseme_O"]] = 1;
       // meshNodeTeeth.morphTargetInfluences[meshNodeHead.morphTargetDictionary["viseme_O"]] = 1;
